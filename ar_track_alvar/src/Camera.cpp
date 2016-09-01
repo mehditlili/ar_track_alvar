@@ -236,15 +236,25 @@ void Camera::camInfoCallback (const sensor_msgs::CameraInfoConstPtr & cam_info)
 		x_res = calib_x_res;
 		y_res = calib_y_res;
 
-		cvmSet(&calib_K, 0, 0, cam_info_.K[0]);
-		cvmSet(&calib_K, 0, 1, cam_info_.K[1]);
-		cvmSet(&calib_K, 0, 2, cam_info_.K[2]);
-		cvmSet(&calib_K, 1, 0, cam_info_.K[3]);
-		cvmSet(&calib_K, 1, 1, cam_info_.K[4]);
-		cvmSet(&calib_K, 1, 2, cam_info_.K[5]);
-		cvmSet(&calib_K, 2, 0, cam_info_.K[6]);
-		cvmSet(&calib_K, 2, 1, cam_info_.K[7]);
-		cvmSet(&calib_K, 2, 2, cam_info_.K[8]);
+//		cvmSet(&calib_K, 0, 0, cam_info_.K[0]);
+//		cvmSet(&calib_K, 0, 1, cam_info_.K[1]);
+//		cvmSet(&calib_K, 0, 2, cam_info_.K[2]);
+//		cvmSet(&calib_K, 1, 0, cam_info_.K[3]);
+//		cvmSet(&calib_K, 1, 1, cam_info_.K[4]);
+//		cvmSet(&calib_K, 1, 2, cam_info_.K[5]);
+//		cvmSet(&calib_K, 2, 0, cam_info_.K[6]);
+//		cvmSet(&calib_K, 2, 1, cam_info_.K[7]);
+//		cvmSet(&calib_K, 2, 2, cam_info_.K[8]);
+
+        cvmSet(&calib_K, 0, 0, cam_info_.P[0]);
+        cvmSet(&calib_K, 0, 1, cam_info_.P[1]);
+        cvmSet(&calib_K, 0, 2, cam_info_.P[2]);
+        cvmSet(&calib_K, 1, 0, cam_info_.P[4]);
+        cvmSet(&calib_K, 1, 1, cam_info_.P[5]);
+        cvmSet(&calib_K, 1, 2, cam_info_.P[6]);
+        cvmSet(&calib_K, 2, 0, cam_info_.P[8]);
+        cvmSet(&calib_K, 2, 1, cam_info_.P[9]);
+        cvmSet(&calib_K, 2, 2, cam_info_.P[10]);
 
         if (cam_info_.D.size() >= 4) {
             cvmSet(&calib_D, 0, 0, cam_info_.D[0]);
@@ -422,7 +432,7 @@ void Camera::SetOpenglProjectionMatrix(double proj_matrix[16], const int width, 
 
 void Camera::Undistort(PointDouble &point)
 {
-/*
+
 	// focal length
 	double ifx = 1./cvmGet(&calib_K, 0, 0);
 	double ify = 1./cvmGet(&calib_K, 1, 1);
@@ -447,12 +457,12 @@ void Camera::Undistort(PointDouble &point)
 	// apply compensation
 	point.x = x/ifx + cx;
 	point.y = y/ify + cy;
-*/
+
 }
 
 void Camera::Undistort(vector<PointDouble >& points)
 {
-/*
+
 	// focal length
 	double ifx = 1./cvmGet(&calib_K, 0, 0);
 	double ify = 1./cvmGet(&calib_K, 1, 1);
@@ -480,12 +490,12 @@ void Camera::Undistort(vector<PointDouble >& points)
 		points[i].x = x/ifx + cx;
 		points[i].y = y/ify + cy;
 	}
-*/
+
 }
 
 void Camera::Undistort(CvPoint2D32f& point)
 {
-/*
+
 	// focal length
 	double ifx = 1./cvmGet(&calib_K, 0, 0);
 	double ify = 1./cvmGet(&calib_K, 1, 1);
@@ -511,42 +521,42 @@ void Camera::Undistort(CvPoint2D32f& point)
 	// apply compensation
 	point.x = float(x/ifx + cx);
 	point.y = float(y/ify + cy);
-*/
+
 }
 
-/*
-	template<class PointType>
-	void Undistort(PointType& point) {
-		// focal length
-		double ifx = 1./cvmGet(&calib_K, 0, 0);
-		double ify = 1./cvmGet(&calib_K, 1, 1);
 
-		// principal point
-		double cx = cvmGet(&calib_K, 0, 2);
-		double cy = cvmGet(&calib_K, 1, 2);
+//    template<class PointType>
+//    void Undistort(PointType& point) {
+//        // focal length
+//        double ifx = 1./cvmGet(&calib_K, 0, 0);
+//        double ify = 1./cvmGet(&calib_K, 1, 1);
 
-		// distortion coeffs
-		double* k = calib_D.data.db;
+//        // principal point
+//        double cx = cvmGet(&calib_K, 0, 2);
+//        double cy = cvmGet(&calib_K, 1, 2);
 
-		// compensate distortion iteratively
-		double x = (point.x - cx)*ifx, y = (point.y - cy)*ify, x0 = x, y0 = y;
-		for(int j = 0; j < 5; j++){
-			double r2 = x*x + y*y;
-			double icdist = 1./(1 + k[0]*r2 + k[1]*r2*r2);
-			double delta_x = 2*k[2]*x*y + k[3]*(r2 + 2*x*x);
-			double delta_y = k[2]*(r2 + 2*y*y) + 2*k[3]*x*y;
-			x = (x0 - delta_x)*icdist;
-			y = (y0 - delta_y)*icdist;
-		}
-		// apply compensation
-		point.x = x/ifx + cx;
-		point.y = y/ify + cy;
-	}
-*/
+//        // distortion coeffs
+//        double* k = calib_D.data.db;
+
+//        // compensate distortion iteratively
+//        double x = (point.x - cx)*ifx, y = (point.y - cy)*ify, x0 = x, y0 = y;
+//        for(int j = 0; j < 5; j++){
+//            double r2 = x*x + y*y;
+//            double icdist = 1./(1 + k[0]*r2 + k[1]*r2*r2);
+//            double delta_x = 2*k[2]*x*y + k[3]*(r2 + 2*x*x);
+//            double delta_y = k[2]*(r2 + 2*y*y) + 2*k[3]*x*y;
+//            x = (x0 - delta_x)*icdist;
+//            y = (y0 - delta_y)*icdist;
+//        }
+//        // apply compensation
+//        point.x = x/ifx + cx;
+//        point.y = y/ify + cy;
+//    }
+
 
 void Camera::Distort(vector<PointDouble>& points) 
 {
-/*
+
 	double u0 = cvmGet(&calib_K, 0, 2), v0 = cvmGet(&calib_K, 1, 2); // cx, cy
 	double fx = cvmGet(&calib_K, 0, 0), fy = cvmGet(&calib_K, 1, 1);
 	double _fx = 1./fx, _fy = 1./fy;
@@ -572,12 +582,12 @@ void Camera::Distort(vector<PointDouble>& points)
 		points[i].x = fx*(x*(d + _2p1y) + p2y2 + (3*p2)*x2) + u0;
 		points[i].y = fy*(y*(d + (2*p2)*x) + _3p1y2 + p1*x2) + v0;
 	}
-*/
+
 }
 
 void Camera::Distort(PointDouble & point) 
 {
-/*
+
 	double u0 = cvmGet(&calib_K, 0, 2), v0 = cvmGet(&calib_K, 1, 2); // cx, cy
 	double fx = cvmGet(&calib_K, 0, 0), fy = cvmGet(&calib_K, 1, 1);
 	double _fx = 1./fx, _fy = 1./fy;
@@ -600,12 +610,12 @@ void Camera::Distort(PointDouble & point)
 
 	point.x = fx*(x*(d + _2p1y) + p2y2 + (3*p2)*x2) + u0;
 	point.y = fy*(y*(d + (2*p2)*x) + _3p1y2 + p1*x2) + v0;
-*/
+
 }
 
 void Camera::Distort(CvPoint2D32f & point) 
 {
-/*
+
 	double u0 = cvmGet(&calib_K, 0, 2), v0 = cvmGet(&calib_K, 1, 2); // cx, cy
 	double fx = cvmGet(&calib_K, 0, 0), fy = cvmGet(&calib_K, 1, 1);
 	double _fx = 1./fx, _fy = 1./fy;
@@ -628,7 +638,7 @@ void Camera::Distort(CvPoint2D32f & point)
 
 	point.x = float(fx*(x*(d + _2p1y) + p2y2 + (3*p2)*x2) + u0);
 	point.y = float(fy*(y*(d + (2*p2)*x) + _3p1y2 + p1*x2) + v0);
-*/
+
 }
 
 void Camera::CalcExteriorOrientation(vector<CvPoint3D64f>& pw, vector<CvPoint2D64f>& pi,
